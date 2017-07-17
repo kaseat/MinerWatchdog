@@ -21,7 +21,6 @@ namespace WDG
         private readonly IComputer computer;
         private readonly Arguments args;
         private readonly IUtilityManager utilMgr;
-
         /// <summary>
         /// Create instance of superviser.
         /// </summary>
@@ -86,9 +85,12 @@ namespace WDG
         /// </remarks>
         private void OnElapse()
         {
-            var hasInet = utilMgr.IsOnline();
-            Output.Write(hasInet ? "Internet ok; " : "No internrt; ",ConsoleColor.Cyan);
-
+            var hasInet = true;
+            if (args.CheckInet)
+            {
+                hasInet = utilMgr.IsOnline();
+                Output.Write(hasInet ? "Internet ok; " : "No internrt; ", ConsoleColor.Cyan);
+            }
             var gpus = computer.Hardware.Where(x => x.HardwareType == HardwareType.GpuNvidia || x.HardwareType == HardwareType.GpuAti);
             foreach (var gpu in gpus)
             {
@@ -100,17 +102,15 @@ namespace WDG
             Output.WriteLine();
 
             var minLoad = computer.Hardware.Min(x => x.Sensors.FirstOrDefault(y => y.SensorType == SensorType.Load)?.Value);
-            if (minLoad < args.GpuLoadThreshold)
-            {
-                Output.WriteLine($"GPU LOAD {minLoad}%, THERESHOLD {args.GpuLoadThreshold}! RESTART MINER IN {--iteration}",ConsoleColor.Red);
-            }
-            else if(hasInet) iteration = MaxItertions;
 
-            if (!hasInet)
+            if (minLoad < args.GpuLoadThreshold) Output.WriteLine($"GPU LOAD {minLoad}%, THERESHOLD {args.GpuLoadThreshold}! RESTART MINER IN {--iteration}",ConsoleColor.Red);
+            else if(hasInet) iteration = MaxItertions;
+            if (args.CheckInet)
             {
-                Output.WriteLine($"NO INTERNET CONNECTION! RESTART MINER IN {--iteration}",ConsoleColor.Red);
+                if (!hasInet)
+                    Output.WriteLine($"NO INTERNET CONNECTION! RESTART MINER IN {--iteration}", ConsoleColor.Red);
+                else if (minLoad > args.GpuLoadThreshold) iteration = MaxItertions;
             }
-            else if (minLoad > args.GpuLoadThreshold) iteration = MaxItertions;
 
             if (iteration > 0) return;
 

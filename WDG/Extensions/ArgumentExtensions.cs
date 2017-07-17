@@ -24,6 +24,9 @@ namespace WDG.Extensions
                 if (args[i] == "-uprate")
                     if (i < args.Length - 1)
                         ar.GpuUpdateRate = Int32.Parse(args[++i]);
+                if (args[i] == "-checkInet")
+                    if (i < args.Length - 1)
+                        ar.CheckInet = Boolean.Parse(args[++i]);
             }
 
             if (ar.Miner == null)

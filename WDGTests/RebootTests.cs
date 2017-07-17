@@ -92,10 +92,12 @@ namespace WDGTests
         }
 
         [DataTestMethod]
-        [DataRow(56, 100, 63, 95, true, 20)] //Internet ok; gpu0(ld=100%, t=56 C);  gpu1(ld=95%, t=63 C)
-        [DataRow(58, 10, 62, 99, true, 9)] //Internet ok; gpu0(ld=10%, t=58 C);  gpu1(ld=99%, t=62 C);
-        public void VerifySupervisedAppNotRestarts(Single t0, Single l0, Single t1, Single l1, Boolean ic, Int32 tr)
+        [DataRow(56, 100, 63, 95, true, 20,true)] //Internet ok; gpu0(ld=100%, t=56 C);  gpu1(ld=95%, t=63 C)
+        [DataRow(56, 100, 63, 95, false, 20,false)] //Internet ok; gpu0(ld=100%, t=56 C);  gpu1(ld=95%, t=63 C)
+        [DataRow(58, 10, 62, 99, true, 9,true)] //Internet ok; gpu0(ld=10%, t=58 C);  gpu1(ld=99%, t=62 C);
+        public void VerifySupervisedAppNotRestarts(Single t0, Single l0, Single t1, Single l1, Boolean ic, Int32 tr,Boolean chInt)
         {
+            pr.Args.CheckInet = chInt;
             pr.Args.GpuLoadThreshold = Convert.ToByte(tr);
             pr.UtilityManager.Stub(x => x.IsOnline()).Return(ic);
             gpu0.Temperature.Stub(x => x.Value).Return(t0);

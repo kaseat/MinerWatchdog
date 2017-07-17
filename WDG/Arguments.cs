@@ -31,5 +31,10 @@ namespace WDG
         /// GPU load values update rate.
         /// </summary>
         public Int32 GpuUpdateRate { get; set; } = 5000;
+
+        /// <summary>
+        /// Check internrt connectivity.
+        /// </summary>
+        public Boolean CheckInet { get; set; } = true;
     }
 }
