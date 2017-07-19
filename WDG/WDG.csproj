@@ -60,7 +60,7 @@
     <Compile Include="Abstract\IUtilityManager.cs" />
     <Compile Include="Abstract\IProcess.cs" />
     <Compile Include="Abstract\ITimer.cs" />
-    <Compile Include="Concrete\OnlineStatuaProvider.cs" />
+    <Compile Include="Concrete\UtilityManager.cs" />
     <Compile Include="Concrete\Timer.cs" />
     <Compile Include="Extensions\ArgumentExtensions.cs" />
     <Compile Include="Arguments.cs" />

@@ -23,7 +23,7 @@ namespace WDG
                     Process = new Process(),
                     Computer = computer,
                     Timer = new Timer(),
-                    UtilityManager = new OnlineStatuaProvider()
+                    UtilityManager = new UtilityManager()
                 };
 
                 // Start superviser.

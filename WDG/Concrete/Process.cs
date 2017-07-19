@@ -15,7 +15,11 @@ namespace WDG.Concrete
 
         public Boolean Start() => process.Start();
 
-        public void Kill() => process.Kill();
+        public void Kill()
+        {
+            if(process.HasExited) return;
+            process.Kill();
+        }
 
         public ProcessStartInfo StartInfo
         {

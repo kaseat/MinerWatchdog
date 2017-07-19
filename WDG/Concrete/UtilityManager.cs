@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Net.NetworkInformation;
 using WDG.Abstract;
 
@@ -7,8 +8,9 @@ namespace WDG.Concrete
     /// <summary>
     /// Online status provider.
     /// </summary>
-    public class OnlineStatuaProvider : IUtilityManager
+    public class UtilityManager : IUtilityManager
     {
+        private static readonly HttpClient Client = new HttpClient();
         /// <summary>
         /// Test if current computer has an internet access.
         /// </summary>
