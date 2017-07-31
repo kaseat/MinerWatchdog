@@ -27,6 +27,9 @@ namespace WDG.Extensions
                 if (args[i] == "-checkInet")
                     if (i < args.Length - 1)
                         ar.CheckInet = Boolean.Parse(args[++i]);
+                if (args[i] == "-restart")
+                    if (i < args.Length - 1)
+                        ar.Restart = Boolean.Parse(args[++i]);
             }
 
             if (ar.Miner == null)

@@ -13,14 +13,17 @@ namespace WDG
     /// </summary>
     public class Superviser
     {
-        private const Int32 MaxItertions = 5;
-        private Int32 iteration = MaxItertions;
+        private const Int32 MaxItertions = 6;
+        private Int32 gpuLoadIterations = MaxItertions;
+        private Int32 checkInetIterations = MaxItertions;
         private Boolean isMonitoring;
+        private Boolean isStopped;
         private readonly IProcess supervisedProcess;
         private readonly ITimer timer;
         private readonly IComputer computer;
         private readonly Arguments args;
         private readonly IUtilityManager utilMgr;
+
         /// <summary>
         /// Create instance of superviser.
         /// </summary>
@@ -74,54 +77,92 @@ namespace WDG
         }
 
         /// <summary>
-        /// On timer elapse handler.
+        /// Here is the behaviour logic depending on internet connection status.
         /// </summary>
-        /// <remarks>
-        /// The main idea of this handler is to get GPU load values in order to
-        /// make decision on restart supervised app. First we get all GPU load
-        /// valuers and show them to user. After we calculate lowest one and if
-        /// calculated value lowerer than the theshold supervised app restarts.
-        /// We have 5 attempts.
-        /// </remarks>
-        private void OnElapse()
+        private void InternetActions()
         {
-            var hasInet = true;
-            if (args.CheckInet)
+            if (!args.CheckInet) return;
+            var hasInet = utilMgr.IsOnline();
+            if (!isStopped) Output.Write(hasInet ? "Internet ok; " : "No internrt; ", ConsoleColor.Cyan);
+            if (hasInet) checkInetIterations = MaxItertions;
+            else if(!isStopped) Output.WriteLine($"NO INTERNET CONNECTION! STOPPING MINER IN {--checkInetIterations}", ConsoleColor.Red);
+            if (checkInetIterations <= 0)
             {
-                hasInet = utilMgr.IsOnline();
-                Output.Write(hasInet ? "Internet ok; " : "No internrt; ", ConsoleColor.Cyan);
+                if (!isStopped)
+                {
+                    utilMgr.StopProcess(supervisedProcess);
+                    Output.WriteLine("Miner stopped", ConsoleColor.Yellow);
+                }
+                isStopped = true;
             }
+            else if (isStopped)
+            {
+                utilMgr.StartProcess(supervisedProcess);
+                Output.WriteLine("Miner started", ConsoleColor.Yellow);
+                isStopped = false;
+            }
+        }
+
+        /// <summary>
+        /// Here is the behaviour logic depending on internet GPU load status.
+        /// </summary>
+        private void LoadActions()
+        {
+            if(isStopped) return;
+
             var gpus = computer.Hardware.Where(x => x.HardwareType == HardwareType.GpuNvidia || x.HardwareType == HardwareType.GpuAti);
+            var minLoad = Single.MaxValue;
             foreach (var gpu in gpus)
             {
                 gpu.Update();
-                var load = gpu.Sensors.FirstOrDefault(x => x.SensorType == SensorType.Load);
-                var tmpr = gpu.Sensors.FirstOrDefault(x => x.SensorType == SensorType.Temperature);
-                Output.Write($"gpu{Regex.Match(gpu.Identifier.ToString(), @"\d+").Value}(ld={load?.Value}%, t={tmpr?.Value} C);  ",ConsoleColor.Cyan);
+                var load = Single.NaN;
+                var tmpr = Single.NaN;
+                foreach (var sensor in gpu.Sensors)
+                {
+                    if (sensor.SensorType == SensorType.Load && sensor.Name == "GPU Core")
+                        if (sensor.Value != null) load = sensor.Value.Value;
+                    if (sensor.SensorType == SensorType.Temperature && sensor.Name == "GPU Core")
+                        if (sensor.Value != null) tmpr = sensor.Value.Value;
+                    if (load < minLoad) minLoad = load;
+                }
+                Output.Write($"gpu{Regex.Match(gpu.Identifier.ToString(), @"\d+").Value}(ld={load}%, t={tmpr} C);  ", ConsoleColor.Cyan);
             }
             Output.WriteLine();
 
-            var minLoad = computer.Hardware.Min(x => x.Sensors.FirstOrDefault(y => y.SensorType == SensorType.Load)?.Value);
-
-            if (minLoad < args.GpuLoadThreshold) Output.WriteLine($"GPU LOAD {minLoad}%, THERESHOLD {args.GpuLoadThreshold}! RESTART MINER IN {--iteration}",ConsoleColor.Red);
-            else if(hasInet) iteration = MaxItertions;
-            if (args.CheckInet)
+            if (minLoad < args.GpuLoadThreshold)
             {
-                if (!hasInet)
-                    Output.WriteLine($"NO INTERNET CONNECTION! RESTART MINER IN {--iteration}", ConsoleColor.Red);
-                else if (minLoad > args.GpuLoadThreshold) iteration = MaxItertions;
+                Output.WriteLine(args.Restart
+                        ? $"GPU LOAD {minLoad}%, THRESHOLD {args.GpuLoadThreshold}! RESTART PC IN {--gpuLoadIterations}"
+                        : $"GPU LOAD {minLoad}%, THRESHOLD {args.GpuLoadThreshold}! RESTART MINER IN {--gpuLoadIterations}",
+                    ConsoleColor.Red);
             }
 
-            if (iteration > 0) return;
+            else gpuLoadIterations = MaxItertions;
 
-            timer.Enabled = false;
+            if (gpuLoadIterations > 0) return;
 
+            if (args.Restart)
+            {
+                Output.Write("RESTARTING PC IN 5 SECONDS", ConsoleColor.Yellow);
+                utilMgr.RestartPc();
+            }
             Output.Write("RESTARTING MINER...", ConsoleColor.Yellow);
             utilMgr.RestartProcess(supervisedProcess);
-            Output.WriteLine(" OK!", ConsoleColor.Green);
+            Output.WriteLine(" OK!", ConsoleColor.Yellow);
+            gpuLoadIterations = MaxItertions;
+        }
 
-            timer.Enabled = true;
-            iteration = MaxItertions;
+        /// <summary>
+        /// On timer elapse handler.
+        /// </summary>
+        private void OnElapse()
+        {
+            timer.Stop();
+
+            InternetActions();
+            LoadActions();
+
+            timer.Start();
         }
     }
 }

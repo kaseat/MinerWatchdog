@@ -18,5 +18,22 @@ namespace WDG.Abstract
         /// </summary>
         /// <param name="process">Process to be restarted.</param>
         void RestartProcess(IProcess process);
+
+        /// <summary>
+        /// Start process.
+        /// </summary>
+        /// <param name="process">Process to be started.</param>
+        void StartProcess(IProcess process);
+
+        /// <summary>
+        /// Stop process.
+        /// </summary>
+        /// <param name="process">Process to be stopped.</param>
+        void StopProcess(IProcess process);
+
+        /// <summary>
+        /// Restart PC.
+        /// </summary>
+        void RestartPc();
     }
 }

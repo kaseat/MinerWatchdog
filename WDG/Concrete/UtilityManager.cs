@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using WDG.Abstract;
@@ -11,6 +12,7 @@ namespace WDG.Concrete
     public class UtilityManager : IUtilityManager
     {
         private static readonly HttpClient Client = new HttpClient();
+
         /// <summary>
         /// Test if current computer has an internet access.
         /// </summary>
@@ -38,7 +40,32 @@ namespace WDG.Concrete
         public void RestartProcess(IProcess process)
         {
             process.Kill();
+
+        }
+
+        public void StartProcess(IProcess process)
+        {
             process.Start();
+        }
+
+        public void StopProcess(IProcess process)
+        {
+            process.Kill();
+        }
+
+        public void RestartPc()
+        {
+            var proc = new ProcessStartInfo
+            {
+                FileName = "cmd",
+                WindowStyle = ProcessWindowStyle.Hidden,
+                Arguments = "/C shutdown -f -r -t 5"
+            };
+            using (var pr = new Process {StartInfo = proc})
+            {
+                pr.Start();
+                pr.WaitForExit();
+            }
         }
     }
 }

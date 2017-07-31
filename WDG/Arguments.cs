@@ -36,5 +36,10 @@ namespace WDG
         /// Check internrt connectivity.
         /// </summary>
         public Boolean CheckInet { get; set; } = true;
+
+        /// <summary>
+        /// Enable retart on GPU fails.
+        /// </summary>
+        public Boolean Restart { get; set; } = false;
     }
 }
