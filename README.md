@@ -28,7 +28,7 @@ WDG -miner "ethminer.exe" -minerPath "C:\miners" -minerArgs "-SP 2 -U -S daggerh
 | loadThreshold | Если нагрузка на GPU упадёт ниже этого значения майнер будет перезапущен | -loadThreshold 53 | 20 % |
 | uprate | Период обновления данных о состоянии GPU | -uprate 1000 | 5000 ms |
 | checkInet | Включить/выключить проверку интернет соединения | -checkInet false | true |
-| checkInet | Перезапуск ОС вместо перезапуска майнера | -restart true | false |
+| restart | Перезапуск ОС вместо перезапуска майнера | -restart true | false |
 
 # Что ещё умеет эта штука?
 
