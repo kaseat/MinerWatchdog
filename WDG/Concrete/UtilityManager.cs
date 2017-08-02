@@ -40,7 +40,7 @@ namespace WDG.Concrete
         public void RestartProcess(IProcess process)
         {
             process.Kill();
-
+            process.Start();
         }
 
         public void StartProcess(IProcess process)

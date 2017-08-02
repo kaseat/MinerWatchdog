@@ -36,7 +36,7 @@ WDG -miner "ethminer.exe" -minerPath "C:\miners" -minerArgs "-SP 2 -U -S daggerh
 
 # Где скачать?
 
-Последняя версия доступна [здесь](https://raw.githubusercontent.com/kaseat/MinerWatchdog/master/Builds/1.0.1.0/WDG.zip)
+Последняя версия доступна [здесь](https://raw.githubusercontent.com/kaseat/MinerWatchdog/master/Builds/1.0.1.1/WDG.zip)
 
 # Что там с лицензией?
 
