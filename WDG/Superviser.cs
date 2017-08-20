@@ -125,7 +125,7 @@ namespace WDG
                         if (sensor.Value != null) tmpr = sensor.Value.Value;
                     if (load < minLoad) minLoad = load;
                 }
-                Output.Write($"gpu{Regex.Match(gpu.Identifier.ToString(), @"\d+").Value}(ld={load}%, t={tmpr} C);  ", ConsoleColor.Cyan);
+                Output.Write($"gpu{Regex.Match(gpu.Identifier.ToString(), @"\d+").Value}(ld={load}%, t={tmpr}C);  ", ConsoleColor.Cyan);
             }
             Output.WriteLine();
 
